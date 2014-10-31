@@ -8,9 +8,10 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import Select
 import requests
 
-book = xlwt.Workbook(encoding='utf-8', style_compression = 0)
-sheet = book.add_sheet('Legi', cell_overwrite_ok = True)  
-row=-1
+def to_excel():
+    book = xlwt.Workbook(encoding='utf-8', style_compression = 0)
+    sheet = book.add_sheet('Legi', cell_overwrite_ok = True)  
+    row=-1
 
 profile = webdriver.FirefoxProfile()
 profile.set_preference("general.useragent.override","Mozilla/5.0 (Macintosh; Intel Mac OS X 10.9; rv:32.0) Gecko/20100101 Firefox/32.0")

@@ -74,48 +74,52 @@ for i in range(8,10):
                 soup2 = BeautifulSoup(url2_html,'html.parser')
 
                 agenda_date = soup2.find_all("span",{"id":"ctl00_ContentPlaceHolder1_lblOnAgenda2"})
-                passed_date = soup2.find_all("span",{"id":"ctl00_ContentPlaceHolder1_lblPassed2"})
-                legislation_number = soup2.find_all("span",{"id":"ctl00_ContentPlaceHolder1_lblFile2"})
-                legislation_status = soup2.find_all("span",{"id":"ctl00_ContentPlaceHolder1_lblStatus2"})
-                legislation_name = soup2.find_all("span",{"id":"ctl00_ContentPlaceHolder1_lblName2"})
-                legislation_title = soup2.find_all("span",{"id":"ctl00_ContentPlaceHolder1_lblTitle2"})
-                legislation_committee = soup2.find_all("a",{"id":"ctl00_ContentPlaceHolder1_hypInControlOf2"})
-                legislation_text = soup2.find_all("span",{"class":"st1"})                                
-                passed_date = soup2.find_all("span",{"id":"ctl00_ContentPlaceHolder1_lblPassed2"})  
-
-                title, name, legi_num, status, a_date, p_date, committee, l_text = ([] for i in range(8))
-                row = row + 1 
-
-                for item in legislation_title:
-                    item = item(text=True)
-                    title.append(''.join(item) if item else 'NA')
-                for item in legislation_name:
-                    item = item(text=True)
-                    name.append(''.join(item) if item else 'NA')
-                for item in legislation_number:
-                    item = item(text=True)
-                    legi_num.append(''.join(item) if item else 'NA')
-                for item in legislation_status:
-                    item = item(text=True)
-                    status.append(''.join(item) if item else 'NA')
+                a_date = []
                 for item in agenda_date:
                     item = item(text=True)
                     a_date.append(''.join(item) if item else 'NA')
-                for item in passed_date:
-                    item = item(text=True)
-                    p_date.append(''.join(item) if item else 'NA')
-                for item in legislation_committee:
-                    item = item(text=True)
-                    committee.append(''.join(item) if item else 'NA')
-                for item in legislation_text:
-                    item = item(text=True)
-                    l_text.append(' '.join(item) if item else '')
 
-                legi = [url2,title,name,legi_num,status,a_date,p_date,committee,l_text]
-                for column, var_observ in enumerate(legi):
-                    sheet.write (row, column, var_observ)
-                book.save("legislation_data.xls")
-                time.sleep(1)
+                bloomberg_years = list(range(2002,2013))
+                if a_date[-4:] in bloomberg_years:    
+                    passed_date = soup2.find_all("span",{"id":"ctl00_ContentPlaceHolder1_lblPassed2"})
+                    legislation_number = soup2.find_all("span",{"id":"ctl00_ContentPlaceHolder1_lblFile2"})
+                    legislation_status = soup2.find_all("span",{"id":"ctl00_ContentPlaceHolder1_lblStatus2"})
+                    legislation_name = soup2.find_all("span",{"id":"ctl00_ContentPlaceHolder1_lblName2"})
+                    legislation_title = soup2.find_all("span",{"id":"ctl00_ContentPlaceHolder1_lblTitle2"})
+                    legislation_committee = soup2.find_all("a",{"id":"ctl00_ContentPlaceHolder1_hypInControlOf2"})
+                    legislation_text = soup2.find_all("span",{"class":"st1"})                                
+                    passed_date = soup2.find_all("span",{"id":"ctl00_ContentPlaceHolder1_lblPassed2"})  
+
+                    title, name, legi_num, status,  p_date, committee, l_text = ([] for i in range(7))
+                    row = row + 1 
+
+                    for item in legislation_title:
+                        item = item(text=True)
+                        title.append(''.join(item) if item else 'NA')
+                    for item in legislation_name:
+                        item = item(text=True)
+                        name.append(''.join(item) if item else 'NA')
+                    for item in legislation_number:
+                        item = item(text=True)
+                        legi_num.append(''.join(item) if item else 'NA')
+                    for item in legislation_status:
+                        item = item(text=True)
+                        status.append(''.join(item) if item else 'NA')
+                    for item in passed_date:
+                        item = item(text=True)
+                        p_date.append(''.join(item) if item else 'NA')
+                    for item in legislation_committee:
+                        item = item(text=True)
+                        committee.append(''.join(item) if item else 'NA')
+                    for item in legislation_text:
+                        item = item(text=True)
+                        l_text.append(' '.join(item) if item else '')
+
+                    legi = [url2,title,name,legi_num,status,a_date,p_date,committee,l_text]
+                    for column, var_observ in enumerate(legi):
+                        sheet.write (row, column, var_observ)
+                    book.save("legislation_data.xls")
+                    time.sleep(1)
         except:
             pass
     driver.implicitly_wait(10)

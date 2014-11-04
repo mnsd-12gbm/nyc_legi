@@ -2,11 +2,11 @@
 import re
 import time
 import xlwt
+import requests
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import Select
-import requests
 
 book = xlwt.Workbook(encoding='utf-8', style_compression = 0)
 sheet = book.add_sheet('Legi', cell_overwrite_ok = True)  
@@ -50,73 +50,73 @@ for val in driver.find_elements_by_class_name('rcbItem'):
 SearchButton = driver.find_element_by_name("ctl00$ContentPlaceHolder1$btnSearch2")
 SearchButton.click()
 
-for i in range(2,4):
-    driver.implicitly_wait(10)
-    hrefs = driver.find_elements_by_xpath("//*[@href]")
-    for j in hrefs:
-        legislation = j.get_attribute("href")
-        try:
-            if 'LegislationDetail' in legislation:
-                url2 = "%s" % (legislation)
-
-                tail_null = "Advanced&Search="
-                tail1 = "ID|Text|&Search="
-                tail2 = "ID%7cText%7c&Search=" 
-                url2 = url2.replace(tail_null,tail1)
-                url2a = url2.replace(tail1,tail2)
-                print url2
-                print url2a
-
-                request2 = requests.get(url2)
-                soup2 = BeautifulSoup(request2.content)
-
-                #leg_type = soup2.find_all("span",{"id":"ctl00_ContentPlaceHolder1_lblType2"})
-                agenda_date = soup2.find_all("span",{"id":"ctl00_ContentPlaceHolder1_lblOnAgenda2"})
-                passed_date = soup2.find_all("span",{"id":"ctl00_ContentPlaceHolder1_lblPassed2"})
-
-                if ((agenda_date[-4:]>=2002) or (passed_date[-4:]>=2002)):
-                    legislation_number = soup2.find_all("span",{"id":"ctl00_ContentPlaceHolder1_lblFile2"})
-                    legislation_status = soup2.find_all("span",{"id":"ctl00_ContentPlaceHolder1_lblStatus2"})
-                    legislation_name = soup2.find_all("span",{"id":"ctl00_ContentPlaceHolder1_lblName2"})
-                    legislation_title = soup2.find_all("span",{"id":"ctl00_ContentPlaceHolder1_lblTitle2"})
-                    legislation_committee = soup2.find_all("a",{"id":"ctl00_ContentPlaceHolder1_hypInControlOf2"})
-                    legislation_text = soup2.find_all("span",{"class":"st1"})                                
-
-                    request2a = requests.get(url2a)
-                    soup2a = BeautifulSoup(request2a.content)
-                    legislation_text2 = soup2a.find_all("span",{"class":"st1"}) 
-
-                    title, name, legi_num, status, a_date, p_date, committee, l_text = ([] for i in range(8))
-                    row = row + 1 
-
-                    for item in legislation_title:
-                        title.append(item.text)              
-                    for item in legislation_name:
-                        name.append(item.text)
-                    for item in legislation_number:
-                        legi_num.append(item.text)
-                    for item in legislation_status:
-                        status.append(item.text)
-                    for item in agenda_date:
-                        a_date.append(item.text)
-                    for item in passed_date:
-                        p_date.append(item.text)
-                    for item in legislation_committee:
-                        committee.append(item.text)
-                    for item in legislation_text:
-                        l_text.append(' '+item.text)
-                    for item in legislation_text2:
-                        l_text.append(' '+item.text)
-
-                    legi = [url2,title,name,legi_num,status,a_date,p_date,committee,l_text]
-                    for column, var_observ in enumerate(legi):
-                        sheet.write (row, column, var_observ)
-                    time.sleep(.25)
-        except:
-            pass
-
+for i in range(8,10):
     next_page = "%d" % (i)
     driver.find_element_by_link_text(next_page).click()
-    driver.implicitly_wait(10)
 
-book.save("legislation_data.xls")
+    driver.implicitly_wait(10)
+    hrefs = driver.find_elements_by_xpath("//*[@href]")
+    lg_list = []
+
+    for j in hrefs:
+        legislation = j.get_attribute("href")
+        lg_list.append(legislation)
+
+    for lg in lg_list:    
+        try:
+            if 'LegislationDetail' in lg:
+                url2 = "%s" % (lg)
+                print url2
+
+                driver.get(url2)
+                driver.find_element_by_link_text('Text').click()
+                url2_html = driver.page_source
+                soup2 = BeautifulSoup(url2_html,'html.parser')
+
+                agenda_date = soup2.find_all("span",{"id":"ctl00_ContentPlaceHolder1_lblOnAgenda2"})
+                passed_date = soup2.find_all("span",{"id":"ctl00_ContentPlaceHolder1_lblPassed2"})
+                legislation_number = soup2.find_all("span",{"id":"ctl00_ContentPlaceHolder1_lblFile2"})
+                legislation_status = soup2.find_all("span",{"id":"ctl00_ContentPlaceHolder1_lblStatus2"})
+                legislation_name = soup2.find_all("span",{"id":"ctl00_ContentPlaceHolder1_lblName2"})
+                legislation_title = soup2.find_all("span",{"id":"ctl00_ContentPlaceHolder1_lblTitle2"})
+                legislation_committee = soup2.find_all("a",{"id":"ctl00_ContentPlaceHolder1_hypInControlOf2"})
+                legislation_text = soup2.find_all("span",{"class":"st1"})                                
+                passed_date = soup2.find_all("span",{"id":"ctl00_ContentPlaceHolder1_lblPassed2"})  
+
+                title, name, legi_num, status, a_date, p_date, committee, l_text = ([] for i in range(8))
+                row = row + 1 
+
+                for item in legislation_title:
+                    item = item(text=True)
+                    title.append(''.join(item) if item else 'NA')
+                for item in legislation_name:
+                    item = item(text=True)
+                    name.append(''.join(item) if item else 'NA')
+                for item in legislation_number:
+                    item = item(text=True)
+                    legi_num.append(''.join(item) if item else 'NA')
+                for item in legislation_status:
+                    item = item(text=True)
+                    status.append(''.join(item) if item else 'NA')
+                for item in agenda_date:
+                    item = item(text=True)
+                    a_date.append(''.join(item) if item else 'NA')
+                for item in passed_date:
+                    item = item(text=True)
+                    p_date.append(''.join(item) if item else 'NA')
+                for item in legislation_committee:
+                    item = item(text=True)
+                    committee.append(''.join(item) if item else 'NA')
+                for item in legislation_text:
+                    item = item(text=True)
+                    l_text.append(' '.join(item) if item else '')
+
+                legi = [url2,title,name,legi_num,status,a_date,p_date,committee,l_text]
+                for column, var_observ in enumerate(legi):
+                    sheet.write (row, column, var_observ)
+                book.save("legislation_data.xls")
+                time.sleep(1)
+        except:
+            pass
+    driver.implicitly_wait(10)
+#book.save("legislation_data.xls")

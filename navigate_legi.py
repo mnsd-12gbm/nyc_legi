@@ -3,11 +3,13 @@ import re
 import time
 import xlwt
 import requests
+import sys
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import Select
 
+print sys.getdefaultencoding()
 book = xlwt.Workbook(encoding='utf-8', style_compression = 0)
 sheet = book.add_sheet('Legi', cell_overwrite_ok = True)  
 row=-1
@@ -50,11 +52,8 @@ for val in driver.find_elements_by_class_name('rcbItem'):
 SearchButton = driver.find_element_by_name("ctl00$ContentPlaceHolder1$btnSearch2")
 SearchButton.click()
 
-for i in range(8,10):
-    next_page = "%d" % (i)
-    driver.find_element_by_link_text(next_page).click()
-
-    driver.implicitly_wait(10)
+driver.find_element_by_link_text('8').click()
+for i in range(9,11):
     hrefs = driver.find_elements_by_xpath("//*[@href]")
     lg_list = []
 
@@ -113,14 +112,18 @@ for i in range(8,10):
                         committee.append(''.join(item) if item else 'NA')
                     for item in legislation_text:
                         item = item(text=True)
-                        l_text.append(' '.join(item) if item else '')
+                        l_text.append(' '.join(item) if item else ' ')
+                    lg_text = re.split('Be it enacted by the Council as follows:' , l_text)
 
-                    legi = [url2,title,name,legi_num,status,a_date,p_date,committee,l_text]
+                    legi = [url2,title,name,legi_num,status,a_date,p_date,committee,lg_text[1]]
                     for column, var_observ in enumerate(legi):
                         sheet.write (row, column, var_observ)
-                    book.save("legislation_data.xls")
-                    time.sleep(1)
+                    book.save("legis_data.xls")
         except:
             pass
-    driver.implicitly_wait(10)
-#book.save("legislation_data.xls")
+
+    next_page = "%d" % (i)
+    driver.find_element_by_link_text(next_page).click()
+    driver.implicitly_wait(1)
+
+book.save("legis_data.xls")

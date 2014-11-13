@@ -32,16 +32,21 @@ for i in range(1,21):
     driver.get('http://legistar.council.nyc.gov/Legislation.aspx')
     driver.find_element_by_link_text('Advanced search >>>').click()
     
+    #'05/31/2010'
+    #'6/15/2006'
+    #'2/15/2004'
+    #'1/1/2002'
     inputElement1 = driver.find_element_by_id("ctl00_ContentPlaceHolder1_txtOnAgenda1_dateInput")
     inputElement1.clear()
-    inputElement1.send_keys('01/01/2002')
+    inputElement1.send_keys('1/1/2002')
     inputElement2 = driver.find_element_by_id("ctl00_ContentPlaceHolder1_txtOnAgenda2_dateInput")
     inputElement2.clear()
+    
     #'12/31/2013'
-    #'05/12/2010'
-    #'02/15/2006'
-    #'03/13/2002'
-    inputElement2.send_keys('03/13/2002')
+    #'5/30/2010'
+    #'6/14/2006'
+    #'2/14/2004'
+    inputElement2.send_keys('2/14/2004')
     driver.find_element_by_id("ctl00_ContentPlaceHolder1_radOnAgenda_3").click()
 
     # Select "Introduction" as document type in drop-down menu
